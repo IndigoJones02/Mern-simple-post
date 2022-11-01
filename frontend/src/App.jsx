@@ -59,9 +59,9 @@ function App() {
               <div className="card-body">
                 <div className="mb-3">
                   <label className="form-label">Enter your post</label>
-                  <textarea className="form-control" id="post-content" rows="3"></textarea>
-                  <div className="d-grid gap-2">
-                    <button type="button" className="btn btn-primary mt-2">Post</button>
+                  <textarea className="form-control" id="post-content" rows="3" value={post} onChange={(e) => (setPost(e.target.value))}></textarea>
+                <div className="d-grid gap-2">
+                  <button type="button" className="btn btn-primary mt-2" onClick={() => addAPost()}>POST</button>
                   </div>
                 </div>
               </div>
@@ -73,7 +73,7 @@ function App() {
                 <div className="card-body">
                   <h6 className="card-subtitle mb-2 text-muted">{timestampGenerator(post.createdAt)}</h6>
                   <p className="card-text">{post.post}</p>
-                  <a href="#" className="card-link" onClick={() => deleteAPost(post._id)}>Delete</a>
+                  <a href="#" className="card-link" onClick={() => deleteAPost(post._id)}>DELETE</a>
                 </div>
               </div>
             )
