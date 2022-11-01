@@ -1,13 +1,55 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 
 function App() {
-  const [posts, setPosts] = useState([{
-    content: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Explicabo iste quia cum architecto autem porro modi consequuntur provident, quidem adipisci nobis eius deserunt aspernatur inventore!'
-  }],
-    [{
-      content: 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia'
-    }]);
+  const [posts, setPosts] = useState("");
+  const [post, setPost] = useState("");
+
+  const gettingPosts = () => {
+    fetch('https://ocalhost:3005/posts')
+      .then(resp => resp.json())
+      .then(results => setPosts(results.data))
+  };
+  useEffect(() =>{
+    gettingPosts();
+  }, []);
+
+  const deleteAPost = (id) => {
+    fetch(`https://localhosts:3005/posts/${id}`,
+        {
+          method: 'DELETE',
+          headers: {'Content-type': 'applications/json'}
+        }).then(resp => resp.json())
+          .then((results) => {
+            gettingPosts();
+            console.log("Status of retrieving posts: " + results.status)
+          })
+  };
+  const addAPost = () => {
+    const newPost = { post: post };
+    fetch('http://localhost:3001/addpost', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newPost)
+
+    }).then(res => res.json()).then((results) => {
+      gettingPosts();
+      console.log("Status of retrieving posts: " + results.status)
+    });
+    setPost("");
+  };
+
+  const timestampGenerator = (period) => {
+    const dateTimeObj = new Date(period);
+    let time = dateTimeObj.toLocaleTimeString().split(":");
+    let date = dateTimeObj.toDateString().split(" ").slice(1);
+    let unit = time[2].slice(3).toLocaleUpperCase();
+    let result = `${date[0]} ${date[1]} ${date[2]} - ${time[0]}:${time[1]} ${unit}`;
+    return result;
+  }
   return (
     <div className='react-app-component text-center'>
       <div className="container">
@@ -25,18 +67,22 @@ function App() {
               </div>
             </div>
 
-            <div className="card text-white bg-dark my-3 text-start">
-              <div className="card-body">
-                <h6 className="card-subtitle mb-2 text-muted">Oct 4, 2022 - 6:15 PM</h6>
-                <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="#" className="card-link">Delete</a>
+            {posts.map((post, index) => {
+            return (
+              <div key={index} className="card text-white bg-dark my-3 text-start">
+                <div className="card-body">
+                  <h6 className="card-subtitle mb-2 text-muted">{timestampGenerator(post.createdAt)}</h6>
+                  <p className="card-text">{post.post}</p>
+                  <a href="#" className="card-link" onClick={() => deleteAPost(post._id)}>Delete</a>
+                </div>
               </div>
-            </div>
-          </div>
+            )
+          })}
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 export default App;
